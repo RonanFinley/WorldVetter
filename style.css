@@ -1,0 +1,55 @@
+body {
+    margin:0;
+    padding:0;
+    font-family: Arial, Helvetica, sans-serif;
+}
+#prime {
+    display: flex;
+    height:100vh;
+}
+#sidebar {
+    width:150px;
+    background-color:#f2f2f2;
+    height:100vh;
+    flex: 1 0 auto;
+}
+h1 {
+    text-align: center;
+    margin: 0;
+}
+.divider {
+    border-top: 1px solid black;
+    margin:10px;
+}
+.button {
+    text-decoration-line: overline underline;
+    text-align: center;
+    margin-bottom: 10px;
+}
+.button:hover{
+    color:white;
+    background-color: black;
+    text-decoration-line: none;
+}
+#pane {
+    padding:10px;
+    width:100%;
+    flex: 0 1 auto;
+    overflow: auto;
+}
+.error {
+    color: #f54266;
+    font-weight: 100;
+    margin: 10px;
+}
+.coordinate {
+    margin-left: 10px;
+}
+.container {
+    padding:5px;
+}
+#signature {
+    position: relative;
+    left:5px;
+    bottom: 5px;
+}

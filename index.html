@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Vetter v0.1.2</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <div id="prime">
+      <div id="sidebar">
+        <h1>Vetter</h1>
+        <div class="divider"></div>
+        <p class="button" id="openFile">Open Folder</p>
+        <p class="button" id="help">Help</p>
+        <p id="signature">By Dr. Yamok<br/>Licensed under MPL-2.0</p>
+      </div>
+      <div id="pane">
+        <p id="selected-file"></p>
+      </div>
+    </div>
+    
+
+    <!-- You can also require other files to run in this process -->
+    <script src="./renderer.js"></script>
+    <script>
+      const ipcRenderer = require('electron').ipcRenderer; 
+      let pane = document.getElementById("pane");
+      let cacheMetadata;
+      document.getElementById("openFile").addEventListener('click', function () {
+        //send the info to main process . we can pass any arguments as second param.
+        console.log("Opening Folder...");
+        ipcRenderer.send("openFile"); // ipcRender.send will pass the information to main process
+      });
+      document.getElementById("help").addEventListener('click', function () {
+        ipcRenderer.send("getHelp");
+      });
+      ipcRenderer.on('gotHelp', (event, data) => {
+        cleanPane();
+        pane.innerHTML = data;
+      });
+      ipcRenderer.on('leveldat', (event, data) => {
+        cleanPane();
+        cacheMetadata = data;
+        var title = document.createElement("h2");
+        title.className = "header";
+        title.append(document.createTextNode(data.name))
+        pane.append(title);
+
+        var features = document.createElement('ul');
+        if(data.experimental == true) {
+          var feat = document.createElement('li');
+          feat.append(document.createTextNode("Experimental Gameplay"));
+          features.append(feat);
+        }
+        if(data.edu == true) {
+          var feat = document.createElement('li');
+          feat.append(document.createTextNode("Education Edition"));
+          features.append(feat);
+        }
+        if(features.childNodes.length>0) {
+          var para = document.createElement('p');
+          para.append(document.createTextNode("Enabled Features:"));
+          para.append(features);
+
+          pane.append(para);
+        }
+        var button = document.createElement("button");
+        button.append(document.createTextNode("Begin Vetting"));
+        button.addEventListener('click', vett);
+        pane.append(button)
+      })
+      ipcRenderer.on('error', (event, data) => {
+        cleanPane();
+        var errornode = document.createElement("h2");
+        errornode.className = "error";
+        errornode.append(document.createTextNode(data));
+        pane.append(errornode);
+      })
+      function cleanPane() {
+        while (pane.firstChild) {
+          pane.removeChild(pane.firstChild);
+        }
+      }
+      function vett() {
+        ipcRenderer.send("vett");
+      }
+      ipcRenderer.on('newData', (event, data) => {
+        cleanPane()
+
+        //title
+
+        var title = document.createElement("h2");
+        title.className = "header";
+        title.append(document.createTextNode("Vetting "+cacheMetadata.name));
+        pane.append(title);
+
+        //errors
+
+        if(data.errors.length>0) {
+          var errors = document.createElement("p");
+          errors.className = "error"
+          errors.append(document.createTextNode("The following errors were encountered when processing your data:"));
+          var ol = document.createElement("ol")
+          for(var i = 0; i < data.errors.length; i++) {
+            var li = document.createElement("li");
+            li.append(document.createTextNode(data.errors[i]));
+            ol.append(li);
+          }
+          errors.append(ol);
+          pane.append(errors);
+        } else {
+          var lackOfErrors = document.createElement("p");
+          lackOfErrors.append(document.createTextNode("No errors!"));
+        }
+
+        // signs
+        
+        if(data.signs.length>0) {
+          /*var signs = document.createElement("h2");
+          signs.className = "header";
+          signs.append(document.createTextNode("Signs"));
+          pane.append(signs);*/ //we only do signs at the moment
+          var notice = document.createElement("p");
+          var i = document.createElement("i");
+          i.append(document.createTextNode("This does not include empty signs"));
+          notice.append(i);
+          pane.append(notice);
+
+          for(var i = 0; i < data.signs.length; i++) {
+            var container = document.createElement("div");
+            container.className = "container";
+
+            var text = document.createElement("p");
+            text.append(document.createTextNode(data.signs[i].text));
+            container.append(text);
+
+            var coordinate = document.createElement("p");
+            coordinate.append(document.createTextNode("/tp @p " + data.signs[i].coords.x + " "  + data.signs[i].coords.y + " "  + data.signs[i].coords.z));
+            coordinate.className = "coordinate";
+            container.append(coordinate);
+
+            pane.append(container);
+          }
+        }
+
+      });
+    </script>
+  </body>
+</html>

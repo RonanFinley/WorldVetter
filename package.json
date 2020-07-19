@@ -1,0 +1,14 @@
+{
+  "name": "Vetter",
+  "version": "0.1.2",
+  "description": "Quickly check every single sign on your map",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "Dr. Yamok",
+  "license": "MPL-2.0",
+  "devDependencies": {
+    "electron": "^9.1.0"
+  }
+}
